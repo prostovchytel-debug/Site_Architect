@@ -1,0 +1,2393 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>АРХІТЕКТОР СТРУКТУРИ — Інтерактивний тренажер проєктування сайту</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#F8FAFC',
+            ink: '#0F172A',
+            muted: '#64748B',
+            line: '#E2E8F0',
+            arch: {
+              50: '#EFF6FF',
+              100: '#DBEAFE',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8',
+            },
+            teal: {
+              50: '#F0FDFA',
+              100: '#CCFBF1',
+              500: '#14B8A6',
+              600: '#0D9488',
+              700: '#0F766E',
+            },
+            amber: {
+              50: '#FFFBEB',
+              100: '#FEF3C7',
+              500: '#F59E0B',
+              600: '#D97706',
+              700: '#B45309',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Engineering Blueprint Dot Grid */
+    .dot-grid {
+      background-color: #F8FAFC;
+      background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* Animated User Flow Path */
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+
+    .flow-line-animated {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 0.85s linear infinite;
+    }
+
+    /* Custom subtle scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    .stage-panel {
+      animation: fadeSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* DEDICATED A4 PRINT / PDF EXPORT STYLES */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm;
+      }
+      body {
+        background: #FFFFFF !important;
+        color: #0F172A !important;
+        font-size: 11pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      #stage-4 {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      #printable-passport {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+      }
+      .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      svg {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-arch-100 selection:text-arch-700">
+
+  <!-- TOP APPLICATION HEADER -->
+  <header class="no-print sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <path d="M10 6.5h4"></path>
+            <path d="M17.5 10v4"></path>
+            <path d="M6.5 10v5.5a2 2 0 0 0 2 2H14"></path>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold tracking-tight text-slate-900 text-sm sm:text-base truncate">АРХІТЕКТОР СТРУКТУРИ</span>
+            <span class="hidden xl:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">11 КЛАС · ПРАКТИЧНА РОБОТА</span>
+          </div>
+          <p class="text-xs text-slate-500 truncate hidden sm:block">Проєктування інформаційної архітектури та паспорта вебсайта</p>
+        </div>
+      </div>
+
+      <!-- Global Actions -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <span id="autosave-indicator" class="hidden 2xl:inline-flex items-center gap-1.5 text-xs text-slate-500 mr-2 font-mono">
+          <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+          Збережено
+        </span>
+
+        <label class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition" title="Відкрити збережений файл проєкту">
+          <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span class="hidden md:inline">Імпорт JSON</span>
+          <input type="file" id="import-json-input" accept=".json" class="hidden" />
+        </label>
+
+        <button id="btn-export-json-top" type="button" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition" title="Зберегти чернетку у форматі JSON">
+          <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="hidden md:inline">Експорт JSON</span>
+        </button>
+
+        <button id="btn-reset-modal" type="button" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-medium text-rose-600 bg-rose-50/70 border border-rose-200/80 hover:bg-rose-100/80 transition" title="Очистити всі поля та почати новий проєкт">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+          </svg>
+          <span>Новий проєкт / Очистити</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4-STEP WORKFLOW NAVIGATION BAR -->
+    <div class="border-t border-slate-200/80 bg-slate-50/80">
+      <div class="max-w-[1480px] mx-auto px-4 sm:px-6">
+        <nav aria-label="Етапи проєктування" class="flex overflow-x-auto py-2 gap-1.5 sm:gap-2">
+          <button type="button" data-step="1" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition whitespace-nowrap">
+            <span class="step-badge w-5 h-5 rounded font-mono text-xs flex items-center justify-center transition">1</span>
+            <span>1. Проєктний бриф</span>
+          </button>
+
+          <div class="flex items-center text-slate-300">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+
+          <button type="button" data-step="2" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition whitespace-nowrap">
+            <span class="step-badge w-5 h-5 rounded font-mono text-xs flex items-center justify-center transition">2</span>
+            <span>2. Структура сайта та переходи</span>
+          </button>
+
+          <div class="flex items-center text-slate-300">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+
+          <button type="button" data-step="3" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition whitespace-nowrap">
+            <span class="step-badge w-5 h-5 rounded font-mono text-xs flex items-center justify-center transition">3</span>
+            <span>3. Блоковий макет (Wireframe)</span>
+          </button>
+
+          <div class="flex items-center text-slate-300">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+
+          <button type="button" data-step="4" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition whitespace-nowrap">
+            <span class="step-badge w-5 h-5 rounded font-mono text-xs flex items-center justify-center transition">4</span>
+            <span>4. Паспорт проєкту та PDF</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- PERSISTENT CONTEXT BAR (Shown on Steps 2, 3, 4) -->
+    <div id="context-bar" class="hidden border-t border-slate-200 bg-white">
+      <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 font-medium">Проєкт:</span>
+            <span id="ctx-project-title" class="font-semibold text-slate-900 truncate max-w-[200px] sm:max-w-xs">Не вказано</span>
+          </div>
+          <span class="text-slate-300 hidden sm:inline">|</span>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="text-slate-400 font-medium">Призначення:</span>
+            <span id="ctx-project-goal" class="text-arch-600 font-medium truncate max-w-[260px] sm:max-w-lg">Не визначено</span>
+          </div>
+        </div>
+        <button id="btn-toggle-context-details" type="button" class="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 font-medium px-2 py-1 rounded hover:bg-slate-100 transition">
+          <span>Сценарії та аудиторія</span>
+          <svg id="ctx-chevron" class="w-3.5 h-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+      </div>
+      <div id="context-details-drawer" class="hidden border-t border-slate-100 bg-slate-50/95 px-4 sm:px-6 py-3">
+        <div class="max-w-[1480px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200/80">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">Цільова аудиторія</div>
+            <div id="ctx-audience" class="text-slate-700 font-medium">—</div>
+          </div>
+          <div id="ctx-scenarios-list" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION WORKSPACE -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- ==================== STAGE 1: PROJECT BRIEF ==================== -->
+    <section id="stage-1" class="stage-panel max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <div class="mb-6 sm:mb-8">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-arch-50 text-arch-700 border border-arch-100 text-xs font-mono font-medium mb-3">
+          <span>ЕТАП 01 / 04</span>
+          <span>·</span>
+          <span>ТЕХНІЧНЕ ЗАВДАННЯ</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">1. Проєктний бриф сайта</h1>
+        <p class="mt-1.5 text-sm sm:text-base text-slate-600 max-w-2xl">
+          Визначте тему власного вебпроєкту, його головне призначення та цільову аудиторію. Ці дані автоматично сформують вступну частину Паспорта проєкту.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-6 space-y-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">Основні реквізити паспорта</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="input-project-title" class="block text-xs font-semibold text-slate-700 mb-1.5">Назва проєкту (сайта) <span class="text-rose-500">*</span></label>
+                <input type="text" id="input-project-title" placeholder="Введіть назву вашого сайта"
+                  class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-arch-600 focus:ring-2 focus:ring-arch-500/15 transition" />
+              </div>
+
+              <div>
+                <label for="input-author" class="block text-xs font-semibold text-slate-700 mb-1.5">Автор / Команда (ПІБ, клас) <span class="text-rose-500">*</span></label>
+                <input type="text" id="input-author" placeholder="Наприклад: Мельник Артем, 11-Б"
+                  class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-arch-600 focus:ring-2 focus:ring-arch-500/15 transition" />
+              </div>
+            </div>
+
+            <div>
+              <label for="input-goal" class="block text-xs font-semibold text-slate-700 mb-1.5">Головне призначення (мета сайта) <span class="text-rose-500">*</span></label>
+              <input type="text" id="input-goal" placeholder="Яке завдання вирішує сайт і яку цільову дію має виконати відвідувач?"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-arch-600 focus:ring-2 focus:ring-arch-500/15 transition" />
+            </div>
+
+            <div>
+              <label for="input-audience" class="block text-xs font-semibold text-slate-700 mb-1.5">Цільова аудиторія <span class="text-rose-500">*</span></label>
+              <textarea id="input-audience" rows="2" placeholder="Хто є основними користувачами сайта? Вікова група, інтереси, рівень підготовки..."
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-arch-600 focus:ring-2 focus:ring-arch-500/15 transition resize-none"></textarea>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-6 space-y-4">
+            <div>
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">Сценарії поведінки користувачів</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Опишіть головний та додатковий шляхи взаємодії відвідувача із сайтом.</p>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-2">
+                <label for="input-scenario-1" class="block text-xs font-mono font-semibold text-arch-700">СЦЕНАРІЙ 1 (ГОЛОВНИЙ ШЛЯХ ДО МЕТИ)</label>
+                <input type="text" id="input-scenario-1" placeholder="Наприклад: Новий учень відкриває головну сторінку → обирає предмет → проходить тренувальний тест"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:border-arch-600" />
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-2">
+                <label for="input-scenario-2" class="block text-xs font-mono font-semibold text-teal-700">СЦЕНАРІЙ 2 (ДОДАТКОВИЙ СЦЕНАРІЙ)</label>
+                <input type="text" id="input-scenario-2" placeholder="Наприклад: Користувач переглядає статистику помилок у кабінеті → переходить до теоретичного довідника"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:border-teal-600" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end pt-2">
+            <button type="button" onclick="goToStep(2)" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium shadow-xs transition">
+              <span>Перейти до структури сайта та переходів</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4 space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
+            <div class="flex items-center gap-2 text-slate-900 font-semibold text-sm mb-3">
+              <svg class="w-4 h-4 text-arch-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              <span>Правила проєктування структури</span>
+            </div>
+            <ul class="space-y-3 text-xs text-slate-600 leading-relaxed">
+              <li class="flex gap-2.5">
+                <span class="font-mono font-semibold text-arch-600">01</span>
+                <span><strong>Правило трьох кліків:</strong> цільова дія (реєстрація, замовлення, тест) має бути досяжною за 1–3 переходи від Головної сторінки.</span>
+              </li>
+              <li class="flex gap-2.5">
+                <span class="font-mono font-semibold text-arch-600">02</span>
+                <span><strong>Оптимальна ширина меню:</strong> головна навігація (Рівень 2) найкраще сприймається, коли містить 3–6 логічних вкладок.</span>
+              </li>
+              <li class="flex gap-2.5">
+                <span class="font-mono font-semibold text-arch-600">03</span>
+                <span><strong>Зв’язність сторінок:</strong> використовуйте перехресні переходи між підкатегоріями, щоб уникнути «сторінок-тупиків».</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-900 text-slate-100 rounded-xl p-5 shadow-2xs">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-2.5">Контроль заповнення брифу</div>
+            <div id="stage-1-status-list" class="space-y-2 text-xs"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== STAGE 2: SITE MAP, NODE INSPECTOR & USER FLOW ==================== -->
+    <section id="stage-2" class="stage-panel hidden flex-1 flex flex-col">
+      <!-- Live Metrics & Action Bar -->
+      <div class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3">
+        <div class="max-w-[1480px] mx-auto flex flex-wrap items-center justify-between gap-3">
+          <!-- Primary Canvas Controls -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-add-l2" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-arch-600 hover:bg-arch-700 text-white text-xs font-medium shadow-2xs transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Додати вкладку (Рівень 2)</span>
+            </button>
+
+            <button id="btn-toggle-flow-mode" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border text-xs font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+              <span id="flow-mode-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <span>Прокласти маршрут до мети (User Flow)</span>
+            </button>
+
+            <button id="btn-clear-flow" type="button" class="hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              <span>Скинути маршрут</span>
+            </button>
+          </div>
+
+          <!-- Real-Time Automatic Counters -->
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono">
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
+              Вкладок: <strong id="metric-l2" class="text-slate-900">0</strong>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
+              Підкатегорій: <strong id="metric-l3" class="text-slate-900">0</strong>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
+              Всього сторінок: <strong id="metric-total-pages" class="text-slate-900">1</strong>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-800">
+              Переходів: <strong id="metric-transitions" class="text-teal-900">0</strong>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-arch-50 border border-arch-200 text-arch-800">
+              Кліків до мети: <strong id="metric-clicks" class="text-arch-900">0</strong>
+            </div>
+
+            <button type="button" onclick="goToStep(3)" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-sans text-xs font-medium transition ml-1">
+              <span>Далі: Блоковий макет</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- User Flow Mode Instruction Banner -->
+        <div id="flow-mode-banner" class="hidden max-w-[1480px] mx-auto mt-2.5 px-3.5 py-2 rounded-lg bg-arch-50 border border-arch-200 flex flex-wrap items-center justify-between gap-2 text-xs text-arch-900">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-arch-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span><strong>Режим запису маршруту:</strong> клікайте послідовно по картках сторінок на схемі, щоб зафіксувати шлях від входу до цільової дії.</span>
+          </div>
+          <span id="flow-sequence-preview" class="font-mono text-[11px] bg-white px-2.5 py-1 rounded border border-arch-200 text-arch-800">Оберіть першу сторінку...</span>
+        </div>
+      </div>
+
+      <!-- Main Split Workspace: Interactive Blueprint Canvas + Node Inspector -->
+      <div class="flex-1 flex flex-col lg:flex-row min-h-[560px]">
+        <!-- Blueprint Dot-Grid Canvas -->
+        <div id="sitemap-scroll-wrapper" class="flex-1 dot-grid overflow-auto relative p-6 sm:p-10">
+          <div id="sitemap-canvas" class="relative min-w-[780px] max-w-[1320px] mx-auto pb-20">
+            <!-- Dynamic SVG Layer for Hierarchy, Cross-Transitions & User Flow -->
+            <svg id="sitemap-svg-layer" class="absolute inset-0 w-full h-full pointer-events-none z-0" overflow="visible"></svg>
+
+            <!-- Level 1: Root Home Node -->
+            <div class="relative z-10 flex justify-center mb-16">
+              <div id="node-root" data-node-id="root" class="sitemap-node w-80 bg-white rounded-xl border-2 border-slate-900 shadow-sm p-4 transition-all cursor-pointer select-none">
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-900 text-white">
+                    Рівень 1 · Головна
+                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="flow-step-badge hidden px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-arch-600 text-white shadow-2xs"></span>
+                    <span class="selected-badge hidden px-2 py-0.5 rounded text-[10px] font-mono bg-arch-50 text-arch-700 border border-arch-200">Обрано</span>
+                  </div>
+                </div>
+                <div id="node-title-root" class="font-bold text-slate-900 text-base">Головна сторінка</div>
+                <p id="node-desc-preview-root" class="mt-1 text-xs text-slate-500 line-clamp-2">Натисніть, щоб відредагувати опис та переходи...</p>
+              </div>
+            </div>
+
+            <!-- Level 2 Tabs & Level 3 Subcategories Grid -->
+            <div id="sitemap-l2-container" class="relative z-10 flex items-start justify-center gap-6"></div>
+          </div>
+
+          <!-- Canvas Legend Floating Footer -->
+          <div class="sticky bottom-3 left-3 inline-flex flex-wrap items-center gap-4 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-xl px-4 py-2 text-[11px] text-slate-600 shadow-xs z-20">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-0.5 bg-slate-400 inline-block"></span>
+              <span>Ієрархія меню</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-0.5 border-t-2 border-dashed border-teal-600 inline-block"></span>
+              <span>Перехресні переходи</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-0.5 border-t-2 border-dashed border-arch-600 inline-block"></span>
+              <span>Маршрут до мети (User Flow)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Node Inspector (Properties, Content Description, Cross-Page Transitions) -->
+        <aside class="w-full lg:w-96 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-5 flex flex-col justify-between shrink-0">
+          <div id="node-inspector-panel" class="space-y-4">
+            <!-- Populated dynamically for selected node -->
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== STAGE 3: WIREFRAME BUILDER ==================== -->
+    <section id="stage-3" class="stage-panel hidden flex-1 flex flex-col">
+      <!-- Wireframe Control Bar -->
+      <div class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3">
+        <div class="max-w-[1480px] mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <label for="wireframe-page-select" class="text-xs font-medium text-slate-500">Сторінка для макетування:</label>
+            <select id="wireframe-page-select" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-arch-600"></select>
+          </div>
+
+          <!-- Responsive Viewport Switcher -->
+          <div class="inline-flex items-center p-1 rounded-lg bg-slate-100 border border-slate-200/80">
+            <button type="button" data-viewport="desktop" class="viewport-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>Десктоп (1200px)</span>
+            </button>
+            <button type="button" data-viewport="mobile" class="viewport-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Смартфон (375px)</span>
+            </button>
+          </div>
+
+          <button type="button" onclick="goToStep(4)" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition">
+            <span>Далі: Паспорт проєкту та PDF</span>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3-Column Wireframe Studio -->
+      <div class="flex-1 flex flex-col lg:flex-row">
+        <!-- Block Library Palette -->
+        <aside class="w-full lg:w-72 bg-white border-b lg:border-b-0 lg:border-r border-slate-200 p-4 shrink-0">
+          <div class="mb-3">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-semibold text-slate-400">Бібліотека блоків</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Натисніть на компонент, щоб додати його на сторінку.</p>
+          </div>
+          <div id="block-library-list" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-1 gap-2"></div>
+        </aside>
+
+        <!-- Interactive Wireframe Canvas -->
+        <div class="flex-1 dot-grid p-4 sm:p-8 overflow-y-auto flex justify-center items-start">
+          <div id="wireframe-device-frame" class="w-full max-w-4xl bg-white rounded-xl border border-slate-300 shadow-md overflow-hidden transition-all duration-300">
+            <div class="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+              </div>
+              <div id="wireframe-url-bar" class="flex-1 max-w-md bg-white border border-slate-200 rounded px-3 py-1 text-[11px] font-mono text-slate-500 text-center truncate">
+                https://site-blueprint.ua/
+              </div>
+              <span id="wireframe-viewport-tag" class="text-[10px] font-mono uppercase text-slate-400">DESKTOP</span>
+            </div>
+
+            <div id="wireframe-blocks-container" class="p-4 sm:p-6 space-y-4 min-h-[420px]"></div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Page Composition Diagnostics -->
+        <aside class="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-5 shrink-0 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="font-semibold text-sm text-slate-900">Перевірка композиції</h2>
+            <span class="text-[11px] font-mono text-slate-400">WIREFRAME</span>
+          </div>
+          <div id="wireframe-advisor-list" class="space-y-2.5"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== STAGE 4: PROJECT PASSPORT & PDF EXPORT ==================== -->
+    <section id="stage-4" class="stage-panel hidden max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <!-- Top Action Bar (Hidden on Print) -->
+      <div class="no-print flex flex-wrap items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-200">
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-arch-50 text-arch-700 border border-arch-100 text-xs font-mono font-medium mb-2">
+            <span>ЕТАП 04 / 04</span>
+            <span>·</span>
+            <span>ФІНАЛЬНИЙ ДОКУМЕНТ</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">4. Паспорт проєкту та експорт у PDF</h1>
+          <p class="text-sm text-slate-600 mt-1">Перегляньте сформований паспорт сайта, перевірте архітектурні підказки та збережіть документ у форматі PDF.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button id="btn-export-json-report" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-medium transition">
+            <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Зберегти JSON</span>
+          </button>
+
+          <button id="btn-print-pdf" type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-arch-600 hover:bg-arch-700 text-white text-xs sm:text-sm font-medium shadow-sm transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span>Завантажити PDF (Паспорт проєкту)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Architectural Advisories (No Grades/Scores, Hidden on Print) -->
+      <div class="no-print bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-2xs mb-8 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">Автоматичний аудит архітектури (підказки перед здачею)</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Система перевіряє повноту описів, зв’язність переходів та кількість кліків до цільової дії.</p>
+          </div>
+        </div>
+        <div id="passport-advisories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- PRINT-READY PROJECT PASSPORT DOCUMENT -->
+      <article id="printable-passport" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-10 space-y-8">
+        <!-- Passport Header -->
+        <div class="border-b-2 border-slate-900 pb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div class="text-xs font-mono uppercase tracking-widest text-slate-500">ПАСПОРТ ІНФОРМАЦІЙНОЇ СТРУКТУРИ ВЕБСАЙТА</div>
+            <h2 id="pass-title" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Назва проєкту</h2>
+          </div>
+          <div class="text-xs font-mono text-slate-600 sm:text-right space-y-1">
+            <div>Автор / команда: <strong id="pass-author" class="text-slate-900">—</strong></div>
+            <div id="pass-date">Дата створення: —</div>
+          </div>
+        </div>
+
+        <!-- Section 1: General Info & Target Audience -->
+        <section class="print-avoid-break space-y-4">
+          <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-500 border-b border-slate-200 pb-1.5">
+            1. Загальні відомості та цільове призначення
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">Головне призначення (мета сайта)</div>
+              <div id="pass-goal" class="text-sm font-semibold text-slate-900 mt-1">—</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">Цільова аудиторія</div>
+              <div id="pass-audience" class="text-sm text-slate-800 mt-1">—</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-3.5 rounded-xl border border-slate-200 text-xs">
+              <div class="font-mono text-[10px] uppercase text-arch-700 font-semibold">Сценарій 1 (Головний шлях до мети)</div>
+              <div id="pass-scenario-1" class="text-slate-800 mt-1">—</div>
+            </div>
+            <div class="p-3.5 rounded-xl border border-slate-200 text-xs">
+              <div class="font-mono text-[10px] uppercase text-teal-700 font-semibold">Сценарій 2 (Додатковий сценарій)</div>
+              <div id="pass-scenario-2" class="text-slate-800 mt-1">—</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Automatic Quantitative Analytics -->
+        <section class="print-avoid-break space-y-3">
+          <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-500 border-b border-slate-200 pb-1.5">
+            2. Кількісні показники архітектури сайта
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+              <div id="pass-stat-l2" class="text-2xl font-mono font-bold text-slate-900">0</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Вкладок меню (Рівень 2)</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+              <div id="pass-stat-l3" class="text-2xl font-mono font-bold text-slate-900">0</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Підкатегорій (Рівень 3)</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+              <div id="pass-stat-total" class="text-2xl font-mono font-bold text-slate-900">1</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Всього сторінок</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-teal-50/70 border border-teal-200 text-center">
+              <div id="pass-stat-transitions" class="text-2xl font-mono font-bold text-teal-800">0</div>
+              <div class="text-[11px] text-teal-700 mt-0.5">Переходів між сторінками</div>
+            </div>
+            <div class="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-arch-50/80 border border-arch-200 text-center">
+              <div id="pass-stat-clicks" class="text-2xl font-mono font-bold text-arch-700">0</div>
+              <div class="text-[11px] text-arch-700 mt-0.5">Кліків до цільової мети</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: Embedded Visual Diagram of Site Structure & Transitions -->
+        <section class="print-avoid-break space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-1.5">
+            <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-500">
+              3. Візуальна схема структури сайта та переходів
+            </h3>
+            <div class="flex items-center gap-3 text-[10px] font-mono text-slate-500">
+              <span class="inline-flex items-center gap-1"><span class="w-4 h-0.5 bg-slate-400 inline-block"></span>Ієрархія</span>
+              <span class="inline-flex items-center gap-1"><span class="w-4 h-0.5 border-t-2 border-dashed border-teal-600 inline-block"></span>Переходи</span>
+              <span class="inline-flex items-center gap-1"><span class="w-4 h-0.5 border-t-2 border-dashed border-arch-600 inline-block"></span>Шлях до мети</span>
+            </div>
+          </div>
+
+          <div id="pass-svg-diagram-wrapper" class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 overflow-x-auto flex justify-center">
+            <!-- Standalone crisp SVG diagram generated dynamically -->
+          </div>
+
+          <div id="pass-flow-summary" class="p-3 rounded-xl bg-arch-50/70 border border-arch-200 text-xs text-slate-800"></div>
+        </section>
+
+        <!-- Section 4: Detailed Registry of Tabs, Subcategories & Content Descriptions -->
+        <section class="space-y-3">
+          <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-500 border-b border-slate-200 pb-1.5">
+            4. Реєстр сторінок, підкатегорій та опис їхнього змісту
+          </h3>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 font-mono text-[11px] border-b border-slate-200">
+                  <th class="py-2.5 px-3">Рівень</th>
+                  <th class="py-2.5 px-3">Назва сторінки / підкатегорії</th>
+                  <th class="py-2.5 px-3">Тип сторінки</th>
+                  <th class="py-2.5 px-3">Короткий опис контенту (що буде розміщено)</th>
+                  <th class="py-2.5 px-3">Переходи на інші сторінки</th>
+                </tr>
+              </thead>
+              <tbody id="pass-pages-table-body" class="divide-y divide-slate-200 bg-white">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section 5: Wireframe Blueprints -->
+        <section class="space-y-3">
+          <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-500 border-b border-slate-200 pb-1.5">
+            5. Структурні макети сторінок (Wireframes)
+          </h3>
+          <div id="pass-wireframes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- CUSTOM MODAL DIALOG (NO alert/confirm) -->
+  <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Очистити робочий простір?</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">Усі поля брифу, дерево навігації, переходи та блокові макети буде скинуто до порожнього шаблону. За потреби попередньо збережіть файл JSON.</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="modal-btn-cancel" type="button" class="px-4 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition">Скасувати</button>
+        <button id="modal-btn-confirm" type="button" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition">Очистити все</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    /**
+     * АРХІТЕКТОР СТРУКТУРИ — Interactive Website Information Architecture Studio
+     * Single-file application with LocalStorage state, interactive SVG tree + cross-transitions + User Flow,
+     * Node Inspector, Responsive Wireframe Builder, Live UX Advisories, and Print/PDF Project Passport.
+     */
+
+    const STORAGE_KEY = 'architector_struktury_gh_v1';
+
+    const PAGE_TYPES = [
+      'Головна',
+      'Інформаційна',
+      'Каталог / Список',
+      'Форма цільової дії',
+      'Особистий кабінет'
+    ];
+
+    const BLOCK_CATALOG = [
+      {
+        type: 'header',
+        name: 'Шапка сайта (Header)',
+        desc: 'Логотип, вкладки меню Рівня 2 та кнопка швидкої дії',
+        defaultTitle: 'Верхня панель навігації',
+        defaultCta: 'Почати'
+      },
+      {
+        type: 'hero',
+        name: 'Перший екран (Hero)',
+        desc: 'Заголовок цінності, короткий опис та головна кнопка дії (CTA)',
+        defaultTitle: 'Головна пропозиція проєкту',
+        defaultCta: 'Перейти до дії'
+      },
+      {
+        type: 'features',
+        name: 'Сітка карток / переваг',
+        desc: 'Ключові можливості або етапи роботи сервісу',
+        defaultTitle: 'Ключові можливості сервісу',
+        defaultCta: ''
+      },
+      {
+        type: 'catalog',
+        name: 'Каталог / Список елементів',
+        desc: 'Сітка карток з фільтрацією або пошуком по категоріях',
+        defaultTitle: 'Каталог розділу',
+        defaultCta: 'Переглянути все'
+      },
+      {
+        type: 'interactive',
+        name: 'Форма цільової дії',
+        desc: 'Форма реєстрації, замовлення, калькулятор або тестування',
+        defaultTitle: 'Форма цільової дії',
+        defaultCta: 'Підтвердити'
+      },
+      {
+        type: 'content',
+        name: 'Контентний блок (Текст + Медіа)',
+        desc: 'Детальний інформаційний блок з описом та ілюстрацією',
+        defaultTitle: 'Інформаційний розділ',
+        defaultCta: ''
+      },
+      {
+        type: 'social',
+        name: 'Відгуки / FAQ',
+        desc: 'Відгуки користувачів, результати та відповіді на питання',
+        defaultTitle: 'Відгуки та поширені запитання',
+        defaultCta: ''
+      },
+      {
+        type: 'footer',
+        name: 'Підвал сайта (Footer)',
+        desc: 'Контакти, дублювання основної навігації та правова інформація',
+        defaultTitle: 'Підвал сайта та контакти',
+        defaultCta: ''
+      }
+    ];
+
+    function createBlankState() {
+      return {
+        currentStep: 1,
+        brief: {
+          projectTitle: '',
+          author: '',
+          goal: '',
+          audience: '',
+          scenario1: '',
+          scenario2: ''
+        },
+        sitemap: {
+          selectedNodeId: 'root',
+          flowMode: false,
+          userFlow: ['root'],
+          root: {
+            id: 'root',
+            title: 'Головна',
+            pageType: 'Головна',
+            description: '',
+            transitions: []
+          },
+          sections: []
+        },
+        wireframes: {
+          activePageId: 'root',
+          viewport: 'desktop',
+          pages: {
+            'root': []
+          }
+        }
+      };
+    }
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createBlankState();
+        const parsed = JSON.parse(raw);
+        const def = createBlankState();
+        return {
+          ...def,
+          ...parsed,
+          brief: { ...def.brief, ...(parsed.brief || {}) },
+          sitemap: {
+            ...def.sitemap,
+            ...(parsed.sitemap || {}),
+            root: { ...def.sitemap.root, ...(parsed.sitemap?.root || {}) }
+          },
+          wireframes: { ...def.wireframes, ...(parsed.wireframes || {}) }
+        };
+      } catch (e) {
+        return createBlankState();
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        const ind = document.getElementById('autosave-indicator');
+        if (ind) {
+          ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>Збережено ' + new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+        }
+      } catch (e) {}
+    }
+
+    function generateId(prefix) {
+      return prefix + '-' + Math.random().toString(36).substring(2, 8);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const borderClass = type === 'success' ? 'border-teal-200 bg-teal-50 text-teal-900' : 'border-slate-200 bg-white text-slate-800';
+      toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border shadow-lg text-xs font-medium flex items-center gap-2 transition-all ${borderClass}`;
+      toast.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full ${type === 'success' ? 'bg-teal-600' : 'bg-arch-600'}"></span>
+        <span>${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(6px)';
+        setTimeout(() => toast.remove(), 220);
+      }, 2600);
+    }
+
+    /* ==================== DATA HELPERS ==================== */
+
+    function getAllNodesList() {
+      const list = [
+        {
+          id: 'root',
+          level: 1,
+          parentTitle: '—',
+          nodeRef: state.sitemap.root
+        }
+      ];
+      state.sitemap.sections.forEach(sec => {
+        list.push({
+          id: sec.id,
+          level: 2,
+          parentTitle: state.sitemap.root.title || 'Головна сторінка',
+          nodeRef: sec
+        });
+        sec.children.forEach(sub => {
+          list.push({
+            id: sub.id,
+            level: 3,
+            parentTitle: sec.title || 'Вкладка',
+            nodeRef: sub
+          });
+        });
+      });
+      return list;
+    }
+
+    function getAllNodesMap() {
+      const map = {};
+      getAllNodesList().forEach(item => {
+        map[item.id] = item;
+      });
+      return map;
+    }
+
+    function cleanInvalidReferences() {
+      const validIds = new Set(Object.keys(getAllNodesMap()));
+
+      // Clean userFlow
+      state.sitemap.userFlow = (state.sitemap.userFlow || []).filter(id => validIds.has(id));
+
+      // Clean transitions on every node
+      getAllNodesList().forEach(item => {
+        if (!Array.isArray(item.nodeRef.transitions)) item.nodeRef.transitions = [];
+        item.nodeRef.transitions = item.nodeRef.transitions.filter(tid => validIds.has(tid) && tid !== item.id);
+      });
+
+      // Clean selectedNodeId
+      if (!validIds.has(state.sitemap.selectedNodeId)) {
+        state.sitemap.selectedNodeId = 'root';
+      }
+    }
+
+    function computeArchitectureMetrics() {
+      cleanInvalidReferences();
+      const l2Count = state.sitemap.sections.length;
+      const l3Count = state.sitemap.sections.reduce((acc, s) => acc + s.children.length, 0);
+      const totalPages = 1 + l2Count + l3Count;
+      const totalTransitions = getAllNodesList().reduce((acc, item) => acc + (item.nodeRef.transitions?.length || 0), 0);
+      const clicksToGoal = Math.max(0, (state.sitemap.userFlow?.length || 0) - 1);
+
+      return { l2Count, l3Count, totalPages, totalTransitions, clicksToGoal };
+    }
+
+    /* ==================== NAVIGATION & CONTEXT BAR ==================== */
+
+    function goToStep(stepNumber) {
+      state.currentStep = stepNumber;
+      saveState();
+
+      document.querySelectorAll('.stage-panel').forEach((el, idx) => {
+        el.classList.toggle('hidden', idx + 1 !== stepNumber);
+      });
+
+      document.querySelectorAll('.step-tab').forEach(btn => {
+        const s = Number(btn.dataset.step);
+        const badge = btn.querySelector('.step-badge');
+        if (s === stepNumber) {
+          btn.classList.add('bg-white', 'text-slate-900', 'shadow-2xs', 'border', 'border-slate-200/90');
+          btn.classList.remove('text-slate-500', 'hover:text-slate-800');
+          badge.classList.add('bg-arch-600', 'text-white');
+          badge.classList.remove('bg-slate-200/80', 'text-slate-600');
+        } else {
+          btn.classList.remove('bg-white', 'text-slate-900', 'shadow-2xs', 'border', 'border-slate-200/90');
+          btn.classList.add('text-slate-500', 'hover:text-slate-800');
+          badge.classList.remove('bg-arch-600', 'text-white');
+          badge.classList.add('bg-slate-200/80', 'text-slate-600');
+        }
+      });
+
+      updateContextBar();
+
+      if (stepNumber === 2) {
+        renderSiteMapStage();
+      } else if (stepNumber === 3) {
+        syncWireframePages();
+        renderWireframeStudio();
+      } else if (stepNumber === 4) {
+        renderPassportStage();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateContextBar() {
+      const bar = document.getElementById('context-bar');
+      if (state.currentStep === 1) {
+        bar.classList.add('hidden');
+        return;
+      }
+      bar.classList.remove('hidden');
+
+      document.getElementById('ctx-project-title').textContent = state.brief.projectTitle.trim() || 'Проєкт без назви';
+      document.getElementById('ctx-project-goal').textContent = state.brief.goal.trim() || 'Призначення не вказано';
+      document.getElementById('ctx-audience').textContent = state.brief.audience.trim() || 'Не вказано';
+
+      document.getElementById('ctx-scenarios-list').innerHTML = `
+        <div class="bg-white p-2.5 rounded-lg border border-slate-200/80">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-arch-600 mb-0.5">Сценарій 1 (Головний)</div>
+          <div class="text-slate-700">${escapeHtml(state.brief.scenario1 || 'Не описано')}</div>
+        </div>
+        <div class="bg-white p-2.5 rounded-lg border border-slate-200/80">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-teal-600 mb-0.5">Сценарій 2 (Додатковий)</div>
+          <div class="text-slate-700">${escapeHtml(state.brief.scenario2 || 'Не описано')}</div>
+        </div>
+      `;
+    }
+
+    /* ==================== STAGE 1: BRIEF ==================== */
+
+    function initStage1() {
+      const fields = [
+        { id: 'input-project-title', key: 'projectTitle' },
+        { id: 'input-author', key: 'author' },
+        { id: 'input-goal', key: 'goal' },
+        { id: 'input-audience', key: 'audience' },
+        { id: 'input-scenario-1', key: 'scenario1' },
+        { id: 'input-scenario-2', key: 'scenario2' }
+      ];
+
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        el.value = state.brief[f.key] || '';
+        el.oninput = (e) => {
+          state.brief[f.key] = e.target.value;
+          saveState();
+          renderStage1Status();
+        };
+      });
+
+      renderStage1Status();
+    }
+
+    function renderStage1Status() {
+      const list = document.getElementById('stage-1-status-list');
+      const checks = [
+        { ok: state.brief.projectTitle.trim().length > 1, text: 'Вказано назву проєкту (сайта)' },
+        { ok: state.brief.author.trim().length > 1, text: 'Зазначено автора / команду' },
+        { ok: state.brief.goal.trim().length > 3, text: 'Визначено головне призначення сайта' },
+        { ok: state.brief.audience.trim().length > 3, text: 'Описано цільову аудиторію' },
+        { ok: state.brief.scenario1.trim().length > 3, text: 'Сформульовано головний сценарій' }
+      ];
+
+      list.innerHTML = checks.map(c => `
+        <div class="flex items-center gap-2.5 ${c.ok ? 'text-teal-300' : 'text-slate-400'}">
+          <span class="w-4 h-4 rounded-full flex items-center justify-center border ${c.ok ? 'border-teal-400 bg-teal-500/20' : 'border-slate-600'}">
+            ${c.ok ? '<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+          </span>
+          <span>${c.text}</span>
+        </div>
+      `).join('');
+    }
+
+    /* ==================== STAGE 2: SITE MAP, INSPECTOR & USER FLOW ==================== */
+
+    function renderSiteMapStage() {
+      const metrics = computeArchitectureMetrics();
+      document.getElementById('metric-l2').textContent = metrics.l2Count;
+      document.getElementById('metric-l3').textContent = metrics.l3Count;
+      document.getElementById('metric-total-pages').textContent = metrics.totalPages;
+      document.getElementById('metric-transitions').textContent = metrics.totalTransitions;
+      document.getElementById('metric-clicks').textContent = metrics.clicksToGoal;
+
+      // Update Root Node Card
+      const rootNode = state.sitemap.root;
+      document.getElementById('node-title-root').textContent = rootNode.title || 'Головна сторінка';
+      document.getElementById('node-desc-preview-root').textContent = rootNode.description.trim() || 'Натисніть, щоб додати опис та переходи...';
+
+      // Render Level 2 & Level 3 Tree
+      const container = document.getElementById('sitemap-l2-container');
+      container.innerHTML = state.sitemap.sections.map(sec => {
+        const subHtml = sec.children.map(sub => {
+          const transCount = (sub.transitions || []).length;
+          return `
+            <div data-node-id="${sub.id}" class="sitemap-node relative bg-white rounded-lg border border-slate-200 hover:border-arch-400 shadow-2xs p-3 transition-all cursor-pointer select-none">
+              <div class="flex items-center justify-between gap-1.5 mb-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Рівень 3 · Підкатегорія</span>
+                <div class="flex items-center gap-1">
+                  <span class="flow-step-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-arch-600 text-white"></span>
+                  <button type="button" onclick="deleteL3Node(event, '${sec.id}', '${sub.id}')" class="p-0.5 text-slate-400 hover:text-rose-600 rounded transition" title="Видалити підкатегорію">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="font-semibold text-xs text-slate-900">${escapeHtml(sub.title || 'Підкатегорія')}</div>
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${escapeHtml(sub.description.trim() || 'Опис контенту не заповнено')}</p>
+              <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span>${escapeHtml(sub.pageType)}</span>
+                ${transCount > 0 ? `<span class="text-teal-700 font-semibold">Переходів: ${transCount}</span>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const secTransCount = (sec.transitions || []).length;
+
+        return `
+          <div class="flex flex-col items-center w-64 shrink-0">
+            <!-- Level 2 Card -->
+            <div data-node-id="${sec.id}" class="sitemap-node w-full bg-white rounded-xl border border-slate-300 hover:border-arch-500 shadow-xs p-3.5 transition-all cursor-pointer select-none">
+              <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-arch-50 text-arch-700 border border-arch-100">
+                  Рівень 2 · Вкладка
+                </span>
+                <div class="flex items-center gap-1">
+                  <span class="flow-step-badge hidden px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-arch-600 text-white shadow-2xs"></span>
+                  <button type="button" onclick="deleteL2Node(event, '${sec.id}')" class="p-1 text-slate-400 hover:text-rose-600 rounded transition" title="Видалити вкладку">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="font-bold text-sm text-slate-900">${escapeHtml(sec.title || 'Вкладка')}</div>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${escapeHtml(sec.description.trim() || 'Натисніть, щоб додати опис сторінки')}</p>
+
+              <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <span class="text-[10px] font-mono text-slate-500 truncate">${escapeHtml(sec.pageType)}</span>
+                <button type="button" onclick="addL3Node(event, '${sec.id}')"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-arch-700 hover:bg-arch-50 border border-arch-200/80 transition shrink-0">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>Підкатегорія</span>
+                </button>
+              </div>
+              ${secTransCount > 0 ? `<div class="mt-1.5 text-[10px] font-mono text-teal-700">Вихідних переходів: ${secTransCount}</div>` : ''}
+            </div>
+
+            <!-- Level 3 Subcategories Stack -->
+            ${sec.children.length > 0 ? `
+              <div class="w-full pl-5 mt-5 space-y-3 border-l-2 border-slate-300 ml-4">
+                ${subHtml}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Bind node click events
+      document.querySelectorAll('.sitemap-node').forEach(nodeEl => {
+        nodeEl.addEventListener('click', () => {
+          const nodeId = nodeEl.dataset.nodeId;
+          if (state.sitemap.flowMode) {
+            handleFlowNodeClick(nodeId);
+          } else {
+            state.sitemap.selectedNodeId = nodeId;
+            saveState();
+            updateNodeHighlights();
+            renderNodeInspector();
+          }
+        });
+      });
+
+      updateNodeHighlights();
+      renderNodeInspector();
+      requestAnimationFrame(() => drawSiteMapSvg());
+    }
+
+    function updateNodeHighlights() {
+      const btnToggle = document.getElementById('btn-toggle-flow-mode');
+      const dot = document.getElementById('flow-mode-dot');
+      const banner = document.getElementById('flow-mode-banner');
+      const btnClear = document.getElementById('btn-clear-flow');
+
+      if (state.sitemap.flowMode) {
+        btnToggle.classList.add('bg-arch-50', 'border-arch-500', 'text-arch-900');
+        btnToggle.classList.remove('bg-white', 'border-slate-200', 'text-slate-700');
+        dot.classList.add('bg-arch-600', 'animate-pulse');
+        dot.classList.remove('bg-slate-300');
+        banner.classList.remove('hidden');
+      } else {
+        btnToggle.classList.remove('bg-arch-50', 'border-arch-500', 'text-arch-900');
+        btnToggle.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+        dot.classList.remove('bg-arch-600', 'animate-pulse');
+        dot.classList.add('bg-slate-300');
+        banner.classList.add('hidden');
+      }
+
+      btnClear.classList.toggle('hidden', state.sitemap.userFlow.length === 0);
+
+      const nodesMap = getAllNodesMap();
+      document.querySelectorAll('.sitemap-node').forEach(el => {
+        const id = el.dataset.nodeId;
+        const isSelected = id === state.sitemap.selectedNodeId && !state.sitemap.flowMode;
+        const badge = el.querySelector('.flow-step-badge');
+        const selBadge = el.querySelector('.selected-badge');
+
+        const stepIndices = [];
+        state.sitemap.userFlow.forEach((fid, idx) => {
+          if (fid === id) stepIndices.push(idx + 1);
+        });
+
+        el.classList.toggle('ring-2', isSelected || stepIndices.length > 0);
+        el.classList.toggle('ring-offset-2', isSelected || stepIndices.length > 0);
+        if (stepIndices.length > 0) {
+          el.classList.add('ring-arch-600');
+          el.classList.remove('ring-slate-900');
+        } else if (isSelected) {
+          el.classList.add('ring-slate-900');
+          el.classList.remove('ring-arch-600');
+        } else {
+          el.classList.remove('ring-slate-900', 'ring-arch-600');
+        }
+
+        if (badge) {
+          if (stepIndices.length > 0) {
+            badge.classList.remove('hidden');
+            badge.textContent = 'Крок ' + stepIndices.join(', ');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+
+        if (selBadge) {
+          selBadge.classList.toggle('hidden', !isSelected);
+        }
+      });
+
+      const seqPreview = document.getElementById('flow-sequence-preview');
+      if (state.sitemap.userFlow.length === 0) {
+        seqPreview.textContent = 'Оберіть першу сторінку...';
+      } else {
+        seqPreview.textContent = state.sitemap.userFlow
+          .map((id, i) => `${i + 1}. ${nodesMap[id]?.nodeRef.title || id}`)
+          .join(' → ');
+      }
+    }
+
+    function renderNodeInspector() {
+      const panel = document.getElementById('node-inspector-panel');
+      const allNodes = getAllNodesList();
+      const currentItem = allNodes.find(n => n.id === state.sitemap.selectedNodeId) || allNodes[0];
+      const node = currentItem.nodeRef;
+
+      const otherNodes = allNodes.filter(n => n.id !== currentItem.id);
+      const typeOptions = PAGE_TYPES.map(t => `<option value="${t}" ${node.pageType === t ? 'selected' : ''}>${t}</option>`).join('');
+
+      const transitionsCheckboxes = otherNodes.length === 0
+        ? '<p class="text-xs text-slate-400 italic">Додайте інші сторінки, щоб налаштувати переходи.</p>'
+        : otherNodes.map(other => {
+            const checked = (node.transitions || []).includes(other.id);
+            const lvlTag = other.level === 1 ? 'Р1' : (other.level === 2 ? 'Р2' : 'Р3');
+            return `
+              <label class="flex items-center gap-2.5 p-2 rounded-lg border ${checked ? 'border-teal-300 bg-teal-50/60' : 'border-slate-200/80 hover:bg-slate-50'} cursor-pointer transition text-xs">
+                <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleNodeTransition('${currentItem.id}', '${other.id}', this.checked)"
+                  class="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
+                <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${lvlTag}</span>
+                <span class="font-medium text-slate-800 truncate">${escapeHtml(other.nodeRef.title || 'Без назви')}</span>
+              </label>
+            `;
+          }).join('');
+
+      panel.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-[10px] font-mono uppercase tracking-wider text-arch-600 font-semibold">Інспектор елемента · Рівень ${currentItem.level}</span>
+            <h2 class="font-bold text-sm text-slate-900 mt-0.5">Властивості сторінки</h2>
+          </div>
+          <button type="button" onclick="appendNodeToFlow('${currentItem.id}')"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-arch-50 hover:bg-arch-100 text-arch-700 border border-arch-200 text-[11px] font-medium transition"
+            title="Додати цю сторінку наступним кроком у цільовий маршрут User Flow">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <span>У маршрут мети</span>
+          </button>
+        </div>
+
+        <div class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Назва сторінки / підкатегорії</label>
+            <input type="text" value="${escapeHtml(node.title)}"
+              oninput="updateSelectedNodeField('title', this.value)"
+              placeholder="Введіть назву сторінки"
+              class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:border-arch-600" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Функціональний тип сторінки</label>
+            <select onchange="updateSelectedNodeField('pageType', this.value)"
+              class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs text-slate-800 bg-white focus:outline-none focus:border-arch-600">
+              ${typeOptions}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Короткий опис контенту (що тут буде розміщено)</label>
+            <textarea rows="3"
+              oninput="updateSelectedNodeField('description', this.value)"
+              placeholder="Опишіть, яка інформація, форми, таблиці або медіа будуть на цій сторінці..."
+              class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-arch-600 resize-none">${escapeHtml(node.description || '')}</textarea>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-semibold text-slate-700">Переходи з цієї сторінки на інші</label>
+              <span class="text-[10px] font-mono text-teal-700">Пунктирні стрілки</span>
+            </div>
+            <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+              ${transitionsCheckboxes}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateSelectedNodeField(field, value) {
+      const allNodes = getAllNodesList();
+      const item = allNodes.find(n => n.id === state.sitemap.selectedNodeId);
+      if (!item) return;
+      item.nodeRef[field] = value;
+      saveState();
+
+      // Lightweight DOM text sync without losing input focus
+      if (item.id === 'root') {
+        if (field === 'title') document.getElementById('node-title-root').textContent = value || 'Головна сторінка';
+        if (field === 'description') document.getElementById('node-desc-preview-root').textContent = value.trim() || 'Натисніть, щоб додати опис та переходи...';
+      } else {
+        renderSiteMapStagePreserveFocus(field);
+      }
+    }
+
+    function renderSiteMapStagePreserveFocus(activeField) {
+      const activeEl = document.activeElement;
+      const selStart = activeEl?.selectionStart;
+      const selEnd = activeEl?.selectionEnd;
+      renderSiteMapStage();
+      if (activeField) {
+        const panel = document.getElementById('node-inspector-panel');
+        const target = activeField === 'title' ? panel.querySelector('input[type="text"]') : panel.querySelector('textarea');
+        if (target) {
+          target.focus();
+          if (typeof selStart === 'number') target.setSelectionRange(selStart, selEnd);
+        }
+      }
+    }
+
+    function toggleNodeTransition(fromId, toId, isChecked) {
+      const allNodes = getAllNodesList();
+      const item = allNodes.find(n => n.id === fromId);
+      if (!item) return;
+      if (!Array.isArray(item.nodeRef.transitions)) item.nodeRef.transitions = [];
+
+      if (isChecked && !item.nodeRef.transitions.includes(toId)) {
+        item.nodeRef.transitions.push(toId);
+      } else if (!isChecked) {
+        item.nodeRef.transitions = item.nodeRef.transitions.filter(id => id !== toId);
+      }
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function addL2Node() {
+      const idx = state.sitemap.sections.length + 1;
+      const newId = generateId('sec');
+      state.sitemap.sections.push({
+        id: newId,
+        title: `Вкладка ${idx}`,
+        pageType: 'Інформаційна',
+        description: '',
+        transitions: [],
+        children: []
+      });
+      state.sitemap.selectedNodeId = newId;
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function deleteL2Node(event, secId) {
+      event.stopPropagation();
+      state.sitemap.sections = state.sitemap.sections.filter(s => s.id !== secId);
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function addL3Node(event, secId) {
+      event.stopPropagation();
+      const sec = state.sitemap.sections.find(s => s.id === secId);
+      if (!sec) return;
+      const newId = generateId('sub');
+      sec.children.push({
+        id: newId,
+        title: `Підкатегорія ${sec.children.length + 1}`,
+        pageType: 'Інформаційна',
+        description: '',
+        transitions: []
+      });
+      state.sitemap.selectedNodeId = newId;
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function deleteL3Node(event, secId, subId) {
+      event.stopPropagation();
+      const sec = state.sitemap.sections.find(s => s.id === secId);
+      if (!sec) return;
+      sec.children = sec.children.filter(c => c.id !== subId);
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function toggleFlowMode() {
+      state.sitemap.flowMode = !state.sitemap.flowMode;
+      saveState();
+      updateNodeHighlights();
+    }
+
+    function clearUserFlow() {
+      state.sitemap.userFlow = [];
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function appendNodeToFlow(nodeId) {
+      const flow = state.sitemap.userFlow;
+      if (flow[flow.length - 1] !== nodeId) {
+        flow.push(nodeId);
+        saveState();
+        renderSiteMapStage();
+        showToast('Сторінку додано до цільового маршруту', 'success');
+      }
+    }
+
+    function handleFlowNodeClick(nodeId) {
+      const flow = state.sitemap.userFlow;
+      if (flow.length > 0 && flow[flow.length - 1] === nodeId) {
+        flow.pop();
+      } else {
+        flow.push(nodeId);
+      }
+      saveState();
+      renderSiteMapStage();
+    }
+
+    function drawSiteMapSvg() {
+      const svg = document.getElementById('sitemap-svg-layer');
+      const canvas = document.getElementById('sitemap-canvas');
+      if (!svg || !canvas) return;
+
+      svg.innerHTML = `
+        <defs>
+          <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#0D9488"></path>
+          </marker>
+          <marker id="arrow-flow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563EB"></path>
+          </marker>
+        </defs>
+      `;
+
+      const canvasRect = canvas.getBoundingClientRect();
+      const rootEl = document.getElementById('node-root');
+      if (!rootEl) return;
+
+      const rootRect = rootEl.getBoundingClientRect();
+      const rootBottomX = rootRect.left - canvasRect.left + rootRect.width / 2;
+      const rootBottomY = rootRect.top - canvasRect.top + rootRect.height;
+
+      // 1. Draw Solid Structural Hierarchy Lines (Root -> Level 2)
+      state.sitemap.sections.forEach(sec => {
+        const secEl = document.querySelector(`[data-node-id="${sec.id}"]`);
+        if (!secEl) return;
+        const secRect = secEl.getBoundingClientRect();
+        const targetX = secRect.left - canvasRect.left + secRect.width / 2;
+        const targetY = secRect.top - canvasRect.top;
+        const midY = rootBottomY + (targetY - rootBottomY) / 2;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', `M ${rootBottomX} ${rootBottomY} L ${rootBottomX} ${midY} L ${targetX} ${midY} L ${targetX} ${targetY}`);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#94A3B8');
+        path.setAttribute('stroke-width', '1.75');
+        svg.appendChild(path);
+      });
+
+      // 2. Draw Dashed Teal Cross-Page Transitions
+      getAllNodesList().forEach(item => {
+        const fromEl = document.querySelector(`[data-node-id="${item.id}"]`);
+        if (!fromEl) return;
+        const r1 = fromEl.getBoundingClientRect();
+        const x1 = r1.left - canvasRect.left + r1.width * 0.85;
+        const y1 = r1.top - canvasRect.top + r1.height * 0.5;
+
+        (item.nodeRef.transitions || []).forEach(targetId => {
+          const toEl = document.querySelector(`[data-node-id="${targetId}"]`);
+          if (!toEl) return;
+          const r2 = toEl.getBoundingClientRect();
+          const x2 = r2.left - canvasRect.left + r2.width * 0.15;
+          const y2 = r2.top - canvasRect.top + r2.height * 0.5;
+
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const cx1 = x1 + dx * 0.3 + 25;
+          const cy1 = y1 + dy * 0.1 + 30;
+          const cx2 = x2 - dx * 0.3 - 25;
+          const cy2 = y2 - dy * 0.1 + 30;
+
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          p.setAttribute('d', `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`);
+          p.setAttribute('fill', 'none');
+          p.setAttribute('stroke', '#0D9488');
+          p.setAttribute('stroke-width', '1.75');
+          p.setAttribute('stroke-dasharray', '5 4');
+          p.setAttribute('marker-end', 'url(#arrow-teal)');
+          svg.appendChild(p);
+        });
+      });
+
+      // 3. Draw Animated Blue User Flow Path
+      const flow = state.sitemap.userFlow || [];
+      for (let i = 0; i < flow.length - 1; i++) {
+        const fromEl = document.querySelector(`[data-node-id="${flow[i]}"]`);
+        const toEl = document.querySelector(`[data-node-id="${flow[i + 1]}"]`);
+        if (!fromEl || !toEl) continue;
+
+        const r1 = fromEl.getBoundingClientRect();
+        const r2 = toEl.getBoundingClientRect();
+        const x1 = r1.left - canvasRect.left + r1.width / 2;
+        const y1 = r1.top - canvasRect.top + r1.height / 2;
+        const x2 = r2.left - canvasRect.left + r2.width / 2;
+        const y2 = r2.top - canvasRect.top + r2.height / 2;
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const cx1 = x1 + dx * 0.25;
+        const cy1 = y1 + dy * 0.1 - 38;
+        const cx2 = x2 - dx * 0.25;
+        const cy2 = y2 - dy * 0.1 - 38;
+
+        const flowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        flowPath.setAttribute('d', `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`);
+        flowPath.setAttribute('fill', 'none');
+        flowPath.setAttribute('stroke', '#2563EB');
+        flowPath.setAttribute('stroke-width', '2.75');
+        flowPath.setAttribute('class', 'flow-line-animated');
+        flowPath.setAttribute('marker-end', 'url(#arrow-flow)');
+        svg.appendChild(flowPath);
+      }
+    }
+
+    /* ==================== STAGE 3: WIREFRAME BUILDER ==================== */
+
+    function syncWireframePages() {
+      const allNodes = getAllNodesList();
+      allNodes.forEach(item => {
+        if (!state.wireframes.pages[item.id]) {
+          state.wireframes.pages[item.id] = [
+            { id: generateId('blk'), type: 'header', title: 'Верхня панель навігації', purpose: 'Меню вкладок сайта', cta: 'Почати' },
+            { id: generateId('blk'), type: 'hero', title: item.nodeRef.title || 'Заголовок сторінки', purpose: item.nodeRef.description || 'Вступний блок сторінки', cta: '' },
+            { id: generateId('blk'), type: 'footer', title: 'Підвал сайта', purpose: 'Контакти та навігація', cta: '' }
+          ];
+        }
+      });
+
+      if (!allNodes.some(n => n.id === state.wireframes.activePageId)) {
+        state.wireframes.activePageId = 'root';
+      }
+
+      const selectEl = document.getElementById('wireframe-page-select');
+      selectEl.innerHTML = allNodes.map(item => {
+        const prefix = item.level === 1 ? '[Рівень 1] ' : (item.level === 2 ? '[Рівень 2] ' : '   └ [Рівень 3] ');
+        return `<option value="${item.id}" ${state.wireframes.activePageId === item.id ? 'selected' : ''}>${escapeHtml(prefix + (item.nodeRef.title || 'Сторінка'))}</option>`;
+      }).join('');
+
+      selectEl.onchange = (e) => {
+        state.wireframes.activePageId = e.target.value;
+        saveState();
+        renderWireframeStudio();
+      };
+    }
+
+    function renderBlockLibrary() {
+      const lib = document.getElementById('block-library-list');
+      lib.innerHTML = BLOCK_CATALOG.map(item => `
+        <button type="button" onclick="addWireframeBlock('${item.type}')"
+          class="text-left p-2.5 rounded-xl border border-slate-200 hover:border-arch-500 hover:bg-arch-50/40 bg-white transition group flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-1.5">
+            <span class="text-xs font-semibold text-slate-800 group-hover:text-arch-700">${escapeHtml(item.name)}</span>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-arch-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 line-clamp-2 hidden lg:block">${escapeHtml(item.desc)}</p>
+        </button>
+      `).join('');
+    }
+
+    function addWireframeBlock(type) {
+      const template = BLOCK_CATALOG.find(b => b.type === type);
+      if (!template) return;
+      const pageId = state.wireframes.activePageId;
+      if (!state.wireframes.pages[pageId]) state.wireframes.pages[pageId] = [];
+
+      state.wireframes.pages[pageId].push({
+        id: generateId('blk'),
+        type: template.type,
+        title: template.defaultTitle,
+        purpose: template.desc,
+        cta: template.defaultCta
+      });
+      saveState();
+      renderWireframeStudio();
+    }
+
+    function moveWireframeBlock(index, direction) {
+      const pageId = state.wireframes.activePageId;
+      const blocks = state.wireframes.pages[pageId];
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= blocks.length) return;
+      [blocks[index], blocks[newIndex]] = [blocks[newIndex], blocks[index]];
+      saveState();
+      renderWireframeStudio();
+    }
+
+    function removeWireframeBlock(index) {
+      const pageId = state.wireframes.activePageId;
+      state.wireframes.pages[pageId].splice(index, 1);
+      saveState();
+      renderWireframeStudio();
+    }
+
+    function updateWireframeBlockField(index, field, value) {
+      const pageId = state.wireframes.activePageId;
+      const blk = state.wireframes.pages[pageId][index];
+      if (blk) {
+        blk[field] = value;
+        saveState();
+        renderWireframeAdvisor();
+      }
+    }
+
+    function setWireframeViewport(vp) {
+      state.wireframes.viewport = vp;
+      saveState();
+      renderWireframeStudio();
+    }
+
+    function renderWireframeVisualPreview(blk, isMobile) {
+      const menuItems = state.sitemap.sections.slice(0, 5).map(s => escapeHtml(s.title || 'Вкладка'));
+
+      switch (blk.type) {
+        case 'header':
+          return `
+            <div class="flex items-center justify-between gap-3 py-2 px-3 bg-slate-100/80 rounded-lg border border-dashed border-slate-300">
+              <div class="font-mono font-bold text-xs text-slate-800 px-2 py-1 bg-white rounded border border-slate-200 truncate max-w-[140px]">
+                ${escapeHtml(state.brief.projectTitle || 'LOGO')}
+              </div>
+              ${isMobile ? `
+                <div class="flex items-center gap-2">
+                  ${blk.cta ? `<span class="px-2 py-1 rounded bg-slate-900 text-white text-[10px] font-medium">${escapeHtml(blk.cta)}</span>` : ''}
+                  <div class="p-1.5 bg-white border border-slate-300 rounded">
+                    <svg class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                  </div>
+                </div>
+              ` : `
+                <div class="flex items-center gap-2 text-[11px] text-slate-600 flex-wrap">
+                  ${menuItems.map(m => `<span class="px-1.5 py-0.5 rounded bg-white border border-slate-200">${m}</span>`).join('')}
+                </div>
+                ${blk.cta ? `<span class="px-2.5 py-1 rounded bg-slate-900 text-white text-[11px] font-medium shrink-0">${escapeHtml(blk.cta)}</span>` : ''}
+              `}
+            </div>
+          `;
+
+        case 'hero':
+          return `
+            <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-12'} gap-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300 items-center">
+              <div class="${isMobile ? '' : 'col-span-7'} space-y-2">
+                <div class="h-2.5 w-20 bg-arch-200 rounded"></div>
+                <div class="text-sm font-bold text-slate-900">${escapeHtml(blk.title)}</div>
+                <div class="text-xs text-slate-500">${escapeHtml(blk.purpose)}</div>
+                ${blk.cta ? `<div class="pt-1"><span class="inline-block px-3 py-1.5 rounded-md bg-arch-600 text-white text-xs font-medium">${escapeHtml(blk.cta)}</span></div>` : ''}
+              </div>
+              <div class="${isMobile ? 'h-24' : 'col-span-5 h-28'} rounded-lg bg-slate-200/70 border border-slate-300 flex items-center justify-center text-[11px] font-mono text-slate-500">
+                [ МЕДІА / ІЛЮСТРАЦІЯ ]
+              </div>
+            </div>
+          `;
+
+        case 'features':
+          return `
+            <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-2.5">
+              ${[1, 2, 3].map(n => `
+                <div class="p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 space-y-1.5">
+                  <div class="w-6 h-6 rounded bg-slate-200 font-mono text-[10px] flex items-center justify-center text-slate-600">0${n}</div>
+                  <div class="h-2.5 w-2/3 bg-slate-300 rounded"></div>
+                  <div class="h-2 w-full bg-slate-200 rounded"></div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+
+        case 'catalog':
+          return `
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex gap-1.5">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-white text-[10px]">Усі</span>
+                  <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px]">Фільтр А</span>
+                  <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px]">Фільтр Б</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-400">КАТАЛОГ</span>
+              </div>
+              <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-2.5">
+                ${[1, 2, 3].map(() => `
+                  <div class="p-2.5 rounded-lg border border-dashed border-slate-300 bg-white space-y-2">
+                    <div class="h-12 rounded bg-slate-100 flex items-center justify-center text-[10px] font-mono text-slate-400">КАРТКА</div>
+                    <div class="h-2.5 w-3/4 bg-slate-300 rounded"></div>
+                    <div class="h-5 w-full rounded bg-slate-100 border border-slate-200"></div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+        case 'interactive':
+          return `
+            <div class="p-3.5 rounded-lg bg-arch-50/40 border border-dashed border-arch-300 flex ${isMobile ? 'flex-col' : 'items-center justify-between'} gap-3">
+              <div class="flex-1 space-y-2">
+                <div class="text-xs font-semibold text-slate-800">${escapeHtml(blk.title)}</div>
+                <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-2">
+                  <div class="h-7 rounded bg-white border border-slate-300 px-2 flex items-center text-[10px] text-slate-400">Поле введення 1</div>
+                  <div class="h-7 rounded bg-white border border-slate-300 px-2 flex items-center text-[10px] text-slate-400">Поле введення 2</div>
+                </div>
+              </div>
+              <span class="px-3.5 py-2 rounded-md bg-slate-900 text-white text-xs font-medium text-center shrink-0">${escapeHtml(blk.cta || 'Надіслати')}</span>
+            </div>
+          `;
+
+        case 'social':
+          return `
+            <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-2.5">
+              ${[1, 2].map(() => `
+                <div class="p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-slate-200 shrink-0"></div>
+                  <div class="flex-1 space-y-1.5">
+                    <div class="h-2.5 w-1/3 bg-slate-300 rounded"></div>
+                    <div class="h-2 w-full bg-slate-200 rounded"></div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+
+        case 'content':
+          return `
+            <div class="grid ${isMobile ? 'grid-cols-1' : 'grid-cols-12'} gap-3 p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 items-center">
+              <div class="${isMobile ? 'h-20' : 'col-span-4 h-20'} rounded bg-slate-200/80 border border-slate-300 flex items-center justify-center text-[10px] font-mono text-slate-500">
+                [ МЕДІА ]
+              </div>
+              <div class="${isMobile ? '' : 'col-span-8'} space-y-1.5">
+                <div class="text-xs font-semibold text-slate-800">${escapeHtml(blk.title)}</div>
+                <div class="text-[11px] text-slate-500">${escapeHtml(blk.purpose)}</div>
+              </div>
+            </div>
+          `;
+
+        case 'footer':
+          return `
+            <div class="p-3 rounded-lg bg-slate-900 text-slate-300 flex ${isMobile ? 'flex-col gap-2' : 'items-center justify-between'} text-[11px]">
+              <div class="font-mono font-semibold text-white truncate max-w-[180px]">${escapeHtml(state.brief.projectTitle || 'PROJECT')}</div>
+              <div class="flex flex-wrap gap-2 text-slate-400">
+                ${menuItems.slice(0, 3).map(m => `<span>${m}</span>`).join(' · ')}
+              </div>
+              <div class="font-mono text-[10px] text-slate-500">Контакти · © 2026</div>
+            </div>
+          `;
+
+        default:
+          return '';
+      }
+    }
+
+    function renderWireframeStudio() {
+      const isMobile = state.wireframes.viewport === 'mobile';
+      const frame = document.getElementById('wireframe-device-frame');
+      const vpTag = document.getElementById('wireframe-viewport-tag');
+      const urlBar = document.getElementById('wireframe-url-bar');
+
+      frame.classList.toggle('max-w-[385px]', isMobile);
+      frame.classList.toggle('max-w-4xl', !isMobile);
+      vpTag.textContent = isMobile ? 'MOBILE · 375PX' : 'DESKTOP · 1200PX';
+
+      document.querySelectorAll('.viewport-btn').forEach(btn => {
+        const active = btn.dataset.viewport === state.wireframes.viewport;
+        btn.classList.toggle('bg-white', active);
+        btn.classList.toggle('text-slate-900', active);
+        btn.classList.toggle('shadow-2xs', active);
+        btn.classList.toggle('text-slate-600', !active);
+      });
+
+      const pageId = state.wireframes.activePageId;
+      const nodeItem = getAllNodesMap()[pageId];
+      const slug = pageId === 'root' ? '' : (nodeItem?.nodeRef.title || 'page').toLowerCase().replace(/[^a-z0-9а-яіїєґ]+/gi, '-');
+      urlBar.textContent = `https://project-blueprint.ua/${slug}`;
+
+      const blocks = state.wireframes.pages[pageId] || [];
+      const container = document.getElementById('wireframe-blocks-container');
+
+      if (blocks.length === 0) {
+        container.innerHTML = `
+          <div class="h-64 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center p-6 text-slate-400">
+            <p class="text-sm font-medium text-slate-600">Макет сторінки порожній</p>
+            <p class="text-xs mt-1">Оберіть блоки з бібліотеки ліворуч, щоб сформувати структуру сторінки.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = blocks.map((blk, idx) => {
+          const meta = BLOCK_CATALOG.find(b => b.type === blk.type);
+          return `
+            <div class="rounded-xl border border-slate-200 hover:border-arch-400 bg-white p-3.5 transition space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[10px] font-semibold">
+                  #${idx + 1} · ${escapeHtml(meta ? meta.name : blk.type)}
+                </span>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="moveWireframeBlock(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}
+                    class="p-1 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition" title="Перемістити вгору">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  </button>
+                  <button type="button" onclick="moveWireframeBlock(${idx}, 1)" ${idx === blocks.length - 1 ? 'disabled' : ''}
+                    class="p-1 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition" title="Перемістити вниз">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </button>
+                  <button type="button" onclick="removeWireframeBlock(${idx})"
+                    class="p-1 rounded hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition ml-1" title="Видалити блок">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              ${renderWireframeVisualPreview(blk, isMobile)}
+
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
+                <div class="sm:col-span-5">
+                  <input type="text" value="${escapeHtml(blk.title)}"
+                    oninput="updateWireframeBlockField(${idx}, 'title', this.value)"
+                    placeholder="Заголовок блоку"
+                    class="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-slate-50 focus:bg-white text-xs font-medium text-slate-800 focus:outline-none focus:border-arch-500" />
+                </div>
+                <div class="sm:col-span-4">
+                  <input type="text" value="${escapeHtml(blk.purpose)}"
+                    oninput="updateWireframeBlockField(${idx}, 'purpose', this.value)"
+                    placeholder="Зміст блоку"
+                    class="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-slate-50 focus:bg-white text-xs text-slate-600 focus:outline-none focus:border-arch-500" />
+                </div>
+                <div class="sm:col-span-3">
+                  <input type="text" value="${escapeHtml(blk.cta || '')}"
+                    oninput="updateWireframeBlockField(${idx}, 'cta', this.value)"
+                    placeholder="Кнопка дії (CTA)"
+                    class="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-slate-50 focus:bg-white text-xs text-arch-700 font-medium focus:outline-none focus:border-arch-500" />
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      renderWireframeAdvisor();
+    }
+
+    function renderWireframeAdvisor() {
+      const container = document.getElementById('wireframe-advisor-list');
+      const pageId = state.wireframes.activePageId;
+      const blocks = state.wireframes.pages[pageId] || [];
+      const hints = [];
+
+      const hasHeader = blocks.some(b => b.type === 'header');
+      const hasFooter = blocks.some(b => b.type === 'footer');
+      const hasCta = blocks.some(b => (b.cta || '').trim().length > 0);
+
+      if (!hasHeader) {
+        hints.push({ type: 'warn', title: 'Відсутня шапка (Header)', text: 'Додайте навігаційну панель, щоб користувач бачив основні вкладки меню.' });
+      }
+      if (!hasCta) {
+        hints.push({ type: 'warn', title: 'Відсутня кнопка цільової дії (CTA)', text: 'Вкажіть текст кнопки дії хоча б в одному блоці сторінки.' });
+      } else {
+        hints.push({ type: 'ok', title: 'Цільова кнопка дії визначена', text: 'На сторінці передбачено точку переходу до наступного кроку.' });
+      }
+      if (!hasFooter) {
+        hints.push({ type: 'info', title: 'Завершення сторінки (Footer)', text: 'Рекомендується додати підвал із контактами та навігацією.' });
+      }
+
+      container.innerHTML = hints.map(h => {
+        const styles = h.type === 'warn'
+          ? 'bg-amber-50 border-amber-200 text-amber-900'
+          : (h.type === 'ok' ? 'bg-teal-50 border-teal-200 text-teal-900' : 'bg-slate-50 border-slate-200 text-slate-800');
+        const dot = h.type === 'warn' ? 'bg-amber-500' : (h.type === 'ok' ? 'bg-teal-600' : 'bg-arch-600');
+        return `
+          <div class="p-3 rounded-xl border text-xs space-y-1 ${styles}">
+            <div class="font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full shrink-0 ${dot}"></span>
+              <span>${escapeHtml(h.title)}</span>
+            </div>
+            <p class="opacity-85 leading-relaxed pl-4">${escapeHtml(h.text)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ==================== STAGE 4: STANDALONE SVG DIAGRAM & PASSPORT ==================== */
+
+    function generateStandalonePassportSvg() {
+      const sections = state.sitemap.sections;
+      const colCount = Math.max(1, sections.length);
+      const colWidth = 210;
+      const colGap = 24;
+      const padX = 32;
+      const svgWidth = Math.max(780, padX * 2 + colCount * colWidth + (colCount - 1) * colGap);
+
+      const maxChildren = sections.reduce((m, s) => Math.max(m, s.children.length), 0);
+      const rootY = 24;
+      const rootH = 54;
+      const l2Y = 128;
+      const l2H = 62;
+      const l3StartY = 218;
+      const l3H = 52;
+      const l3Gap = 14;
+      const svgHeight = Math.max(250, l3StartY + maxChildren * (l3H + l3Gap) + 36);
+
+      const coords = {};
+      const rootW = 240;
+      const rootX = (svgWidth - rootW) / 2;
+      coords['root'] = { x: rootX, y: rootY, w: rootW, h: rootH, cx: rootX + rootW / 2, cy: rootY + rootH / 2 };
+
+      const totalGridW = colCount * colWidth + (colCount - 1) * colGap;
+      const startX = (svgWidth - totalGridW) / 2;
+
+      sections.forEach((sec, cIdx) => {
+        const sx = startX + cIdx * (colWidth + colGap);
+        coords[sec.id] = { x: sx, y: l2Y, w: colWidth, h: l2H, cx: sx + colWidth / 2, cy: l2Y + l2H / 2 };
+
+        sec.children.forEach((sub, rIdx) => {
+          const subW = colWidth - 22;
+          const subX = sx + 22;
+          const subY = l3StartY + rIdx * (l3H + l3Gap);
+          coords[sub.id] = { x: subX, y: subY, w: subW, h: l3H, cx: subX + subW / 2, cy: subY + l3H / 2 };
+        });
+      });
+
+      let svgContent = `
+        <svg viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" class="font-sans">
+          <defs>
+            <marker id="pass-arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#0D9488"></path>
+            </marker>
+            <marker id="pass-arrow-flow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563EB"></path>
+            </marker>
+          </defs>
+      `;
+
+      // 1. Hierarchy Lines (Root -> L2 and L2 -> L3)
+      const rRoot = coords['root'];
+      sections.forEach(sec => {
+        const rSec = coords[sec.id];
+        if (!rSec) return;
+        const midY = rRoot.y + rRoot.h + (rSec.y - (rRoot.y + rRoot.h)) / 2;
+        svgContent += `<path d="M ${rRoot.cx} ${rRoot.y + rRoot.h} L ${rRoot.cx} ${midY} L ${rSec.cx} ${midY} L ${rSec.cx} ${rSec.y}" fill="none" stroke="#94A3B8" stroke-width="1.5" />`;
+
+        if (sec.children.length > 0) {
+          const trunkX = rSec.x + 11;
+          const lastChild = coords[sec.children[sec.children.length - 1].id];
+          svgContent += `<line x1="${trunkX}" y1="${rSec.y + rSec.h}" x2="${trunkX}" y2="${lastChild.cy}" stroke="#CBD5E1" stroke-width="1.5" />`;
+
+          sec.children.forEach(sub => {
+            const rSub = coords[sub.id];
+            svgContent += `<line x1="${trunkX}" y1="${rSub.cy}" x2="${rSub.x}" y2="${rSub.cy}" stroke="#CBD5E1" stroke-width="1.5" />`;
+          });
+        }
+      });
+
+      // 2. Cross-Page Dashed Teal Transitions
+      getAllNodesList().forEach(item => {
+        const c1 = coords[item.id];
+        if (!c1) return;
+        (item.nodeRef.transitions || []).forEach(tid => {
+          const c2 = coords[tid];
+          if (!c2) return;
+          const x1 = c1.x + c1.w * 0.85;
+          const y1 = c1.cy;
+          const x2 = c2.x + c2.w * 0.15;
+          const y2 = c2.cy;
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          svgContent += `<path d="M ${x1} ${y1} C ${x1 + dx * 0.3 + 20} ${y1 + dy * 0.1 + 26}, ${x2 - dx * 0.3 - 20} ${y2 - dy * 0.1 + 26}, ${x2} ${y2}" fill="none" stroke="#0D9488" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pass-arrow-teal)" />`;
+        });
+      });
+
+      // 3. User Flow Blue Path
+      const flow = state.sitemap.userFlow || [];
+      for (let i = 0; i < flow.length - 1; i++) {
+        const c1 = coords[flow[i]];
+        const c2 = coords[flow[i + 1]];
+        if (!c1 || !c2) continue;
+        const dx = c2.cx - c1.cx;
+        const dy = c2.cy - c1.cy;
+        svgContent += `<path d="M ${c1.cx} ${c1.cy} C ${c1.cx + dx * 0.25} ${c1.cy + dy * 0.1 - 32}, ${c2.cx - dx * 0.25} ${c2.cy - dy * 0.1 - 32}, ${c2.cx} ${c2.cy}" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-dasharray="6 4" marker-end="url(#pass-arrow-flow)" />`;
+      }
+
+      // 4. Render Nodes
+      function trunc(txt, max) {
+        const s = String(txt || '');
+        return s.length > max ? s.slice(0, max - 1) + '…' : s;
+      }
+
+      // Root Box
+      const rootSteps = flow.map((id, idx) => id === 'root' ? idx + 1 : null).filter(Boolean);
+      svgContent += `
+        <g>
+          <rect x="${rRoot.x}" y="${rRoot.y}" width="${rRoot.w}" height="${rRoot.h}" rx="8" fill="#0F172A" />
+          <text x="${rRoot.x + 12}" y="${rRoot.y + 20}" fill="#94A3B8" font-size="9" font-family="JetBrains Mono, monospace">РІВЕНЬ 1 · ГОЛОВНА</text>
+          <text x="${rRoot.x + 12}" y="${rRoot.y + 39}" fill="#FFFFFF" font-size="12" font-weight="700">${escapeHtml(trunc(state.sitemap.root.title || 'Головна сторінка', 28))}</text>
+          ${rootSteps.length > 0 ? `<circle cx="${rRoot.x + rRoot.w - 14}" cy="${rRoot.y + 14}" r="10" fill="#2563EB" /><text x="${rRoot.x + rRoot.w - 14}" y="${rRoot.y + 18}" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">${rootSteps[0]}</text>` : ''}
+        </g>
+      `;
+
+      // Level 2 & Level 3 Boxes
+      sections.forEach(sec => {
+        const rSec = coords[sec.id];
+        const secSteps = flow.map((id, idx) => id === sec.id ? idx + 1 : null).filter(Boolean);
+        svgContent += `
+          <g>
+            <rect x="${rSec.x}" y="${rSec.y}" width="${rSec.w}" height="${rSec.h}" rx="8" fill="#FFFFFF" stroke="${secSteps.length > 0 ? '#2563EB' : '#CBD5E1'}" stroke-width="${secSteps.length > 0 ? '2' : '1.5'}" />
+            <text x="${rSec.x + 10}" y="${rSec.y + 18}" fill="#2563EB" font-size="9" font-family="JetBrains Mono, monospace">Р2 · ${escapeHtml(trunc(sec.pageType, 18))}</text>
+            <text x="${rSec.x + 10}" y="${rSec.y + 36}" fill="#0F172A" font-size="11.5" font-weight="700">${escapeHtml(trunc(sec.title, 23))}</text>
+            <text x="${rSec.x + 10}" y="${rSec.y + 51}" fill="#64748B" font-size="9.5">${escapeHtml(trunc(sec.description || 'Без опису', 28))}</text>
+            ${secSteps.length > 0 ? `<circle cx="${rSec.x + rSec.w - 13}" cy="${rSec.y + 13}" r="9.5" fill="#2563EB" /><text x="${rSec.x + rSec.w - 13}" y="${rSec.y + 16.5}" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">${secSteps[0]}</text>` : ''}
+          </g>
+        `;
+
+        sec.children.forEach(sub => {
+          const rSub = coords[sub.id];
+          const subSteps = flow.map((id, idx) => id === sub.id ? idx + 1 : null).filter(Boolean);
+          svgContent += `
+            <g>
+              <rect x="${rSub.x}" y="${rSub.y}" width="${rSub.w}" height="${rSub.h}" rx="6" fill="#FFFFFF" stroke="${subSteps.length > 0 ? '#2563EB' : '#E2E8F0'}" stroke-width="${subSteps.length > 0 ? '2' : '1.25'}" />
+              <text x="${rSub.x + 9}" y="${rSub.y + 16}" fill="#64748B" font-size="8.5" font-family="JetBrains Mono, monospace">Р3 · ${escapeHtml(trunc(sub.pageType, 16))}</text>
+              <text x="${rSub.x + 9}" y="${rSub.y + 32}" fill="#0F172A" font-size="10.5" font-weight="600">${escapeHtml(trunc(sub.title, 21))}</text>
+              <text x="${rSub.x + 9}" y="${rSub.y + 44}" fill="#64748B" font-size="8.5">${escapeHtml(trunc(sub.description || 'Без опису', 25))}</text>
+              ${subSteps.length > 0 ? `<circle cx="${rSub.x + rSub.w - 11}" cy="${rSub.y + 11}" r="8.5" fill="#2563EB" /><text x="${rSub.x + rSub.w - 11}" y="${rSub.y + 14}" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">${subSteps[0]}</text>` : ''}
+            </g>
+          `;
+        });
+      });
+
+      svgContent += '</svg>';
+      return svgContent;
+    }
+
+    function renderPassportAdvisories(metrics) {
+      const advisories = [];
+      const allNodes = getAllNodesList();
+
+      if (metrics.l2Count > 6) {
+        advisories.push({
+          type: 'warn',
+          title: `Широке верхнє меню (${metrics.l2Count} вкладок)`,
+          text: 'Рекомендується залишати 3–6 основних вкладок Рівня 2, а решту згрупувати у підкатегорії.'
+        });
+      } else {
+        advisories.push({
+          type: 'ok',
+          title: `Збалансоване верхнє меню (${metrics.l2Count} вкладок)`,
+          text: 'Кількість основних розділів відповідає правилам зручної навігації.'
+        });
+      }
+
+      if (state.sitemap.userFlow.length < 2) {
+        advisories.push({
+          type: 'warn',
+          title: 'Цільовий маршрут (User Flow) не зафіксовано',
+          text: 'Поверніться на Етап 2 та прокладіть шлях користувача до головної мети, щоб автоматично порахувати кліки.'
+        });
+      } else if (metrics.clicksToGoal > 4) {
+        advisories.push({
+          type: 'warn',
+          title: `Довгий шлях до цільової дії (${metrics.clicksToGoal} кліків)`,
+          text: 'Спробуйте скоротити шлях до 1–3 кліків, додавши прямий перехід із Головної сторінки.'
+        });
+      } else {
+        advisories.push({
+          type: 'ok',
+          title: `Швидке досягнення мети (${metrics.clicksToGoal} ${metrics.clicksToGoal === 1 ? 'клік' : 'кліки'})`,
+          text: 'Маршрут користувача відповідає принципу трьох кліків.'
+        });
+      }
+
+      const emptyDescCount = allNodes.filter(n => !(n.nodeRef.description || '').trim()).length;
+      if (emptyDescCount > 0) {
+        advisories.push({
+          type: 'warn',
+          title: `Не заповнено опис контенту для ${emptyDescCount} сторінок`,
+          text: 'Відкрийте інспектор сторінок на Етапі 2 та опишіть, що саме буде розміщено в кожній вкладці й підкатегорії.'
+        });
+      } else {
+        advisories.push({
+          type: 'ok',
+          title: 'Усі сторінки та підкатегорії мають опис змісту',
+          text: 'Кожен елемент структури деталізовано у реєстрі паспорта.'
+        });
+      }
+
+      if (metrics.totalTransitions === 0) {
+        advisories.push({
+          type: 'info',
+          title: 'Відсутні перехресні переходи між сторінками',
+          text: 'Налаштуйте внутрішні переходи в інспекторі на Етапі 2, щоб показати зв’язки між розділами.'
+        });
+      } else {
+        advisories.push({
+          type: 'ok',
+          title: `Налаштовано ${metrics.totalTransitions} внутрішніх переходів`,
+          text: 'Схема відображає взаємозв’язки між сторінками та підкатегоріями.'
+        });
+      }
+
+      document.getElementById('passport-advisories-grid').innerHTML = advisories.map(a => {
+        const styles = a.type === 'warn'
+          ? 'bg-amber-50 border-amber-200 text-amber-900'
+          : (a.type === 'ok' ? 'bg-teal-50 border-teal-200 text-teal-900' : 'bg-slate-50 border-slate-200 text-slate-800');
+        const dot = a.type === 'warn' ? 'bg-amber-500' : (a.type === 'ok' ? 'bg-teal-600' : 'bg-arch-600');
+        return `
+          <div class="p-3.5 rounded-xl border text-xs space-y-1 ${styles}">
+            <div class="font-semibold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full shrink-0 ${dot}"></span>
+              <span>${escapeHtml(a.title)}</span>
+            </div>
+            <p class="opacity-85 leading-relaxed pl-4">${escapeHtml(a.text)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPassportStage() {
+      syncWireframePages();
+      const metrics = computeArchitectureMetrics();
+      renderPassportAdvisories(metrics);
+
+      // General Info
+      document.getElementById('pass-title').textContent = state.brief.projectTitle.trim() || 'Вебпроєкт без назви';
+      document.getElementById('pass-author').textContent = state.brief.author.trim() || 'Не вказано';
+      document.getElementById('pass-date').textContent = 'Дата створення: ' + new Date().toLocaleDateString('uk-UA');
+      document.getElementById('pass-goal').textContent = state.brief.goal.trim() || 'Не вказано';
+      document.getElementById('pass-audience').textContent = state.brief.audience.trim() || 'Не вказано';
+      document.getElementById('pass-scenario-1').textContent = state.brief.scenario1.trim() || 'Не описано';
+      document.getElementById('pass-scenario-2').textContent = state.brief.scenario2.trim() || 'Не описано';
+
+      // Quantitative Analytics
+      document.getElementById('pass-stat-l2').textContent = metrics.l2Count;
+      document.getElementById('pass-stat-l3').textContent = metrics.l3Count;
+      document.getElementById('pass-stat-total').textContent = metrics.totalPages;
+      document.getElementById('pass-stat-transitions').textContent = metrics.totalTransitions;
+      document.getElementById('pass-stat-clicks').textContent = metrics.clicksToGoal;
+
+      // Embedded SVG Diagram
+      document.getElementById('pass-svg-diagram-wrapper').innerHTML = generateStandalonePassportSvg();
+
+      const nodesMap = getAllNodesMap();
+      const flow = state.sitemap.userFlow || [];
+      const flowSummaryEl = document.getElementById('pass-flow-summary');
+      if (flow.length >= 2) {
+        flowSummaryEl.innerHTML = `<strong>Цільовий маршрут до мети (${metrics.clicksToGoal} ${metrics.clicksToGoal === 1 ? 'клік' : (metrics.clicksToGoal <= 4 ? 'кліки' : 'кліків')}):</strong> ` +
+          flow.map((id, i) => `<span class="font-mono text-arch-800">${i + 1}. ${escapeHtml(nodesMap[id]?.nodeRef.title || id)}</span>`).join(' &rarr; ');
+      } else {
+        flowSummaryEl.innerHTML = `<span class="text-slate-500">Цільовий маршрут (User Flow) не зафіксовано на схемі.</span>`;
+      }
+
+      // Detailed Pages & Subcategories Registry Table
+      const allNodes = getAllNodesList();
+      document.getElementById('pass-pages-table-body').innerHTML = allNodes.map(item => {
+        const n = item.nodeRef;
+        const lvlBadge = item.level === 1
+          ? '<span class="px-2 py-0.5 rounded bg-slate-900 text-white font-mono text-[10px]">Рівень 1</span>'
+          : (item.level === 2
+            ? '<span class="px-2 py-0.5 rounded bg-arch-50 text-arch-700 border border-arch-200 font-mono text-[10px]">Рівень 2</span>'
+            : '<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[10px]">Рівень 3</span>');
+
+        const titlePrefix = item.level === 3 ? '<span class="text-slate-400 font-mono mr-1">└</span>' : '';
+        const outgoingNames = (n.transitions || [])
+          .map(tid => nodesMap[tid]?.nodeRef.title)
+          .filter(Boolean);
+
+        return `
+          <tr class="align-top">
+            <td class="py-2.5 px-3 whitespace-nowrap">${lvlBadge}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">${titlePrefix}${escapeHtml(n.title || 'Без назви')}</td>
+            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600 whitespace-nowrap">${escapeHtml(n.pageType)}</td>
+            <td class="py-2.5 px-3 text-slate-700 leading-relaxed">${escapeHtml(n.description?.trim() || 'Опис не вказано')}</td>
+            <td class="py-2.5 px-3 text-[11px] text-teal-800">
+              ${outgoingNames.length > 0 ? outgoingNames.map(name => `<span class="inline-block px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 mr-1 mb-1">&rarr; ${escapeHtml(name)}</span>`).join('') : '<span class="text-slate-400">—</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Wireframe Blueprints Summary (Render Root + Level 2 pages that have blocks)
+      const pagesForWireframe = allNodes.filter(item => item.level <= 2);
+      document.getElementById('pass-wireframes-grid').innerHTML = pagesForWireframe.map(item => {
+        const blocks = state.wireframes.pages[item.id] || [];
+        return `
+          <div class="print-avoid-break rounded-xl border border-slate-200 overflow-hidden bg-slate-50/40">
+            <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">${escapeHtml(item.nodeRef.title || 'Сторінка')}</span>
+              <span class="text-[10px] font-mono text-slate-500">${blocks.length} блоків</span>
+            </div>
+            <div class="p-3 space-y-1.5">
+              ${blocks.map((b, i) => `
+                <div class="p-2 rounded-lg bg-white border border-slate-200 text-xs flex items-start justify-between gap-2">
+                  <div>
+                    <div class="font-semibold text-slate-800"><span class="font-mono text-slate-400 mr-1">0${i + 1}.</span>${escapeHtml(b.title)}</div>
+                    <div class="text-[11px] text-slate-500">${escapeHtml(b.purpose)}</div>
+                  </div>
+                  ${b.cta ? `<span class="px-2 py-0.5 rounded bg-arch-50 text-arch-700 border border-arch-200 text-[10px] font-medium shrink-0">${escapeHtml(b.cta)}</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ==================== IMPORT / EXPORT / RESET ==================== */
+
+    function exportProjectJson() {
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (state.brief.projectTitle || 'site-passport').toLowerCase().replace(/[^a-z0-9а-яіїєґ]+/gi, '-');
+      a.href = url;
+      a.download = `${safeName}-passport.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Файл проєкту JSON збережено', 'success');
+    }
+
+    function handleImportJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported.brief || !imported.sitemap) throw new Error('Invalid structure');
+          const def = createBlankState();
+          state = {
+            ...def,
+            ...imported,
+            brief: { ...def.brief, ...imported.brief },
+            sitemap: {
+              ...def.sitemap,
+              ...imported.sitemap,
+              root: { ...def.sitemap.root, ...(imported.sitemap.root || {}) }
+            },
+            wireframes: { ...def.wireframes, ...(imported.wireframes || {}) }
+          };
+          saveState();
+          initStage1();
+          goToStep(state.currentStep || 1);
+          showToast('Проєкт завантажено з JSON', 'success');
+        } catch (err) {
+          showToast('Помилка формату JSON-файлу', 'warn');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function openResetModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetProject() {
+      state = createBlankState();
+      saveState();
+      closeResetModal();
+      initStage1();
+      goToStep(1);
+      showToast('Робочий простір очищено');
+    }
+
+    /* ==================== INITIALIZATION ==================== */
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.step-tab').forEach(btn => {
+        btn.addEventListener('click', () => goToStep(Number(btn.dataset.step)));
+      });
+
+      document.getElementById('btn-toggle-context-details').addEventListener('click', () => {
+        document.getElementById('context-details-drawer').classList.toggle('hidden');
+        document.getElementById('ctx-chevron').classList.toggle('rotate-180');
+      });
+
+      document.getElementById('btn-add-l2').addEventListener('click', addL2Node);
+      document.getElementById('btn-toggle-flow-mode').addEventListener('click', toggleFlowMode);
+      document.getElementById('btn-clear-flow').addEventListener('click', clearUserFlow);
+
+      document.querySelectorAll('.viewport-btn').forEach(btn => {
+        btn.addEventListener('click', () => setWireframeViewport(btn.dataset.viewport));
+      });
+
+      document.getElementById('btn-export-json-top').addEventListener('click', exportProjectJson);
+      document.getElementById('btn-export-json-report').addEventListener('click', exportProjectJson);
+      document.getElementById('import-json-input').addEventListener('change', handleImportJson);
+      document.getElementById('btn-print-pdf').addEventListener('click', () => {
+        renderPassportStage();
+        setTimeout(() => window.print(), 120);
+      });
+
+      document.getElementById('btn-reset-modal').addEventListener('click', openResetModal);
+      document.getElementById('modal-btn-cancel').addEventListener('click', closeResetModal);
+      document.getElementById('modal-btn-confirm').addEventListener('click', confirmResetProject);
+
+      window.addEventListener('resize', () => {
+        if (state.currentStep === 2) drawSiteMapSvg();
+      });
+
+      initStage1();
+      renderBlockLibrary();
+      goToStep(state.currentStep || 1);
+    });
+  </script>
+</body>
+</html>
